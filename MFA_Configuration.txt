@@ -1,0 +1,60 @@
+Paperless NGX - MFA Configuration Documentation
+
+Goal:
+To enable Multi-Factor Authentication (MFA) for users in Paperless NGX to enhance application security.
+
+---
+
+1. Access to the Django Admin Interface
+- URL: https://paperless.mtrolle.com/admin
+- Logged in with the administrator account.
+
+---
+
+2. Adding an Authenticator
+1. Navigated to: MFA > Authenticators > Add Authenticator.
+2. Selected the user for whom MFA should be enabled.
+3. Chose the type "TOTP Authenticator".
+
+---
+
+3. JSON Data Structure in the "Data" Field
+The following JSON structure was entered in the "Data" field:
+
+```json
+{
+  "secret": "[CUSTOM_SECRET]",
+  "issuer": "Paperless NGX",
+  "label": "[USERNAME]",
+  "algorithm": "SHA1",
+  "digits": 6,
+  "period": 30
+}
+```
+
+Explanation:
+- `secret`: The custom TOTP key defined by the user.
+- `issuer`: "Paperless NGX" (to identify the application).
+- `label`: Username or a unique description of the user.
+- `algorithm`: Hash algorithm (default: SHA1).
+- `digits`: Number of digits in the OTP (default: 6).
+- `period`: Validity period of a code (in seconds, default: 30).
+
+---
+
+4. Testing Multi-Factor Authentication
+1. The user scanned the generated QR code with a TOTP app (e.g., Google Authenticator, Authy).
+2. The user performed a test login to confirm functionality.
+
+Result: The MFA feature was successfully activated and tested.
+
+---
+
+5. Important Notes
+- Backup Key: The user was advised to securely store the TOTP key.
+- Recovery: If the user loses access, MFA can only be reset by the administrator.
+- Future Configurations: Additional users can enable MFA using the same method.
+
+---
+
+Completed on: January 23, 2025
