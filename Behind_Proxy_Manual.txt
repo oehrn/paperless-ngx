@@ -1,0 +1,30 @@
+Paperless NGX - Configuration Adjustment
+
+Goal:
+Adjusting the URL parameters in Paperless NGX and restarting the container to apply the changes.
+
+---
+
+1. Locate the configuration file
+- The following command was executed in the Proxmox console of the Paperless LXC container to find the configuration file:
+find / -name "paperless.conf" 2>/dev/null
+
+---
+
+2. Open and modify the configuration file
+- The located file was opened using `nano`:
+nano /path/to/paperless.conf
+
+- The following parameter was added/updated under Security and Hosting:
+PAPERLESS_URL=https://paperless.example.com
+
+---
+
+3. Restart the container
+- After the adjustment, the container was restarted to apply the changes.
+- The restart was performed with the following command:
+reboot
+
+---
+
+Completed on: January 23, 2025
