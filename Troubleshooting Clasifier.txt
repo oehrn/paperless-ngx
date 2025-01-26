@@ -1,0 +1,65 @@
+
+Troubleshooting and Maintenance Guide for Paperless-ngx
+
+1. Verify Running Services:
+   - Run the command:
+     systemctl list-units | grep paperless
+   - Ensure the following services are active:
+     - paperless-consumer.service
+     - paperless-scheduler.service
+     - paperless-task-queue.service
+     - paperless-webserver.service
+
+2. Check Logs for Errors:
+   - Example command:
+     journalctl -u paperless-scheduler.service
+   - Replace "paperless-scheduler.service" with any other service to check its logs.
+
+3. Manually Restart Services:
+   - Restart a specific service:
+     systemctl restart paperless-scheduler.service
+   - Restart all services:
+     systemctl restart paperless-consumer.service paperless-scheduler.service paperless-task-queue.service paperless-webserver.service
+
+4. Rebuild the Classifier:
+   - To rebuild the document classifier, run:
+     python3 manage.py document_create_classifier --verbosity 3
+   - Ensure this command completes without errors.
+
+5. Check for Missing Dependencies:
+   - If services fail to start, verify dependencies:
+     dpkg -l | grep <dependency-name>
+   - Reinstall missing dependencies using apt:
+     apt install <dependency-name>
+
+6. File and Permission Issues:
+   - Verify directory permissions:
+     ls -ld /opt/paperless/data
+   - Ensure writable permissions for the correct user.
+
+7. Updating Paperless-ngx:
+   - Pull the latest updates:
+     git pull
+   - Rebuild and apply migrations:
+     python3 manage.py migrate
+
+8. Reinstall Celery Beat Database:
+   - If the celerybeat-schedule.db file is corrupted:
+     rm /opt/paperless/data/celerybeat-schedule.db
+   - Restart the scheduler:
+     systemctl restart paperless-scheduler.service
+
+9. Debugging Celery Issues:
+   - Run Celery in debug mode to check for detailed errors:
+     celery --app paperless beat --loglevel DEBUG
+
+10. Verify Network Configuration:
+   - Check Redis service:
+     systemctl status redis
+   - Ensure Redis is active and listening on localhost:6379.
+
+11. Accessing GUI and Verifying Functionality:
+   - After fixing the services, access the Paperless-ngx web interface.
+   - Verify document ingestion, search, and classifier status in the settings.
+
+For further debugging or updates, refer to the official Paperless-ngx documentation or the community scripts repository.
