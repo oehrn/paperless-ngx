@@ -1,0 +1,42 @@
+1. Verify Services Are Running
+   Use the following command to check the status of Paperless services:
+   systemctl list-units | grep paperless
+
+   You should see the following services as "active (running)":
+   - paperless-consumer.service
+   - paperless-scheduler.service
+   - paperless-task-queue.service
+   - paperless-webserver.service
+
+2. Check Logs for Errors
+   If any service is not running, inspect its logs. For example, to view logs for the scheduler service, use:
+   journalctl -u paperless-scheduler.service
+
+3. Locate the celerybeat-schedule.db
+   If issues persist, locate and check the celerybeat-schedule.db file:
+   find / -name celerybeat-schedule.db
+
+4. Resolve Issues with celerybeat-schedule.db
+   If you encounter errors related to this database file, such as "cannot add item to database":
+   - Stop the paperless-scheduler service:
+     systemctl stop paperless-scheduler.service
+   - Delete or move the celerybeat-schedule.db file:
+     rm /opt/paperless/data/celerybeat-schedule.db
+   - Restart the service:
+     systemctl start paperless-scheduler.service
+
+5. Retrain Classifier Manually
+   To retrain the document classifier, run:
+   python3 manage.py document_create_classifier --verbosity 3
+   Ensure the updated model is saved in the expected path (e.g., /opt/paperless/data/classification_model.pickle).
+
+6. Verify Training Date in the Web Interface
+   After retraining, the "last trained" date in the web interface should update to the current date.
+
+7. Reboot the System
+   If all else fails, reboot the system to ensure all services initialize properly:
+   reboot
+
+8. Confirm All Services Post-Reboot
+   After rebooting, confirm all services are active using:
+   systemctl list-units | grep paperless
