@@ -43,7 +43,12 @@ cp .env.example .env
 docker-compose up -d
 ```
 
-5. Access the web interface at `http://your-server-ip:8000`
+5. Wait for all containers to start:
+```bash
+docker ps -a
+```
+
+6. Access the web interface at `http://your-server-ip:8000`
 
 See [Multi-File Environment Configuration](docs/Multi-File_Environment_Configuration.md) for more details on the environment setup.
 
