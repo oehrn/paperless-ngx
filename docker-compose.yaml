@@ -1,0 +1,72 @@
+name: paperless-ngx
+services:
+  broker:
+    image: docker.io/library/redis:7
+    container_name: Redis
+    restart: unless-stopped
+    volumes:
+      - redisdata:/data
+
+  db:
+    image: docker.io/library/postgres:16
+    container_name: PostgreSQL
+    restart: unless-stopped
+    env_file:
+      - db.env
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    # Additional environment variables can still be set here if needed
+    environment:
+      POSTGRES_DB: ${POSTGRES_DB:-paperless}
+      POSTGRES_USER: ${POSTGRES_USER:-paperless}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-paperless}
+
+
+  webserver:
+    image: ghcr.io/paperless-ngx/paperless-ngx:latest
+    container_name: Paperless-NGX
+    restart: unless-stopped
+    depends_on:
+      - db
+      - broker
+      - gotenberg
+      - tika
+    ports:
+      - "${PAPERLESS_PORT:-8000}:8000"
+    env_file:
+      - webserver.env
+    volumes:
+      - data:/usr/src/paperless/data
+      - ${PAPERLESS_MEDIA_DIR:-/mnt/data/paperless/media}:/usr/src/paperless/media
+      - ${PAPERLESS_EXPORT_DIR:-/mnt/data/paperless/export}:/usr/src/paperless/export
+      - ${PAPERLESS_CONSUME_DIR:-/mnt/data/paperless/consume}:/usr/src/paperless/consume
+    # Additional environment variables can still be set here if needed
+    environment:
+      PAPERLESS_REDIS: redis://broker:6379
+      PAPERLESS_DBHOST: db
+      PAPERLESS_TIKA_ENABLED: 1
+      PAPERLESS_TIKA_GOTENBERG_ENDPOINT: http://gotenberg:3000
+      PAPERLESS_TIKA_ENDPOINT: http://tika:9998
+      PAPERLESS_OCR_LANGUAGE: ${PAPERLESS_OCR_LANGUAGE:-eng}
+
+  gotenberg:
+    image: docker.io/gotenberg/gotenberg:8.7
+    container_name: Gotenberg
+    restart: unless-stopped
+
+    # The gotenberg chromium route is used to convert .eml files. We do not
+    # want to allow external content like tracking pixels or even javascript.
+    command:
+      - "gotenberg"
+      - "--chromium-disable-javascript=true"
+      - "--chromium-allow-list=file:///tmp/.*"
+
+  tika:
+    image: docker.io/apache/tika:latest
+    container_name: Tika
+    restart: unless-stopped
+
+volumes:
+  data:
+  pgdata:
+  redisdata:
